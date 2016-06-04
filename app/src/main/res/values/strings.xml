@@ -11,4 +11,5 @@
     <string name="action_search">Поиск</string>
     <string name="search_hint">Поиск</string>
     <string name="action_more">Читать далее</string>
+    <string name="network_unavailable_msg">Сеть недоступна</string>
 </resources>
