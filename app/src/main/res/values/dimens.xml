@@ -25,6 +25,8 @@
     <dimen name="action_padding">8dp</dimen>
     <dimen name="more_button_height">36dp</dimen>
     <dimen name="more_button_padding">8dp</dimen>
+    <dimen name="star_left_padding">16dp</dimen>
+    <dimen name="share_button_padding">8dp</dimen>
 
     <!--&lt;!&ndash;list item margins per the Android Design guidelines. &ndash;&gt;-->
     <!--<dimen name="list_item_min_height">48dp</dimen>-->

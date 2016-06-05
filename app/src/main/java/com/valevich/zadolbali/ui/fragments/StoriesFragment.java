@@ -1,5 +1,6 @@
 package com.valevich.zadolbali.ui.fragments;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -7,8 +8,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +30,7 @@ import com.valevich.zadolbali.database.ZadolbaliDatabase;
 import com.valevich.zadolbali.database.data.StoryEntry;
 import com.valevich.zadolbali.network.RestService;
 import com.valevich.zadolbali.network.model.Story;
+import com.valevich.zadolbali.ui.StoryActionHandler;
 import com.valevich.zadolbali.utils.NetworkStatusChecker;
 import com.valevich.zadolbali.utils.UserNotifier;
 
@@ -46,7 +50,7 @@ import java.util.List;
 
 @OptionsMenu(R.menu.search_menu)
 @EFragment(R.layout.fragment_stories)
-public class StoriesFragment extends Fragment {
+public class StoriesFragment extends Fragment implements StoryActionHandler {
 
     @ViewById(R.id.coordinator)
     CoordinatorLayout mRootLayout;
@@ -163,7 +167,7 @@ public class StoriesFragment extends Fragment {
                         String source = downloadedStory.getSite();
 
                         story.setDescription(description);
-                        story.setFavourite(0);
+                        story.setIsFavourite(0);
                         story.setIsRead(0);
                         story.setLink(link);
                         story.setSource(source);
@@ -212,7 +216,7 @@ public class StoriesFragment extends Fragment {
             public void onLoadFinished(Loader<List<StoryEntry>> loader, List<StoryEntry> data) {
                 StoryAdapter adapter = (StoryAdapter) mStoryList.getAdapter();
                 if (adapter == null) {
-                    mStoryList.setAdapter(new StoryAdapter(data));
+                    mStoryList.setAdapter(new StoryAdapter(data,StoriesFragment.this));
                 } else {
                     adapter.refresh(data);
                 }
@@ -223,12 +227,6 @@ public class StoriesFragment extends Fragment {
 
             }
         });
-    }
-
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.stories_fragment, menu);
     }
 
     // TODO: 04.06.2016 REMOVE
@@ -269,5 +267,55 @@ public class StoriesFragment extends Fragment {
 
     }
 
+    @Override
+    public void share(StoryEntry story) {
+
+    }
+
+    @Override
+    public void more(StoryEntry story) {
+
+    }
+
+    @Override
+    public void addToFavorite(StoryEntry story) {
+
+        DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
+
+        ProcessModelTransaction<StoryEntry> processModelTransaction =
+                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<StoryEntry>() {
+                    @Override
+                    public void processModel(StoryEntry story) {
+                        if(story.getIsFavourite() == 0) story.setIsFavourite(1);
+                        else story.setIsFavourite(0);
+                        story.save();
+                    }
+                }).processListener(new ProcessModelTransaction.OnModelProcessListener<StoryEntry>() {
+                    @Override
+                    public void onModelProcessed(long current, long total, StoryEntry story) {
+
+                    }
+                }).addAll(story).build();
+
+        Transaction transaction = database
+                .beginTransactionAsync(processModelTransaction)
+                .build();
+
+        transaction.execute();
+
+    }
+
+
+    private Intent createShareIntent(String storyText) {
+        Intent myShareIntent = new Intent(Intent.ACTION_SEND);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            myShareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        } else {
+            myShareIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        }
+        myShareIntent.setType("text/plain");
+        myShareIntent.putExtra(Intent.EXTRA_TEXT,storyText);
+        return myShareIntent;
+    }
 }
 

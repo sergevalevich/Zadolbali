@@ -26,6 +26,7 @@
             tools:text = "AZzZAZAZAZHGAJDGHJDGAJHSGAGSGAJS"
             android:textSize="@dimen/primary_text_size"
             android:maxLines="3"
+            android:ellipsize="end"
             android:layout_marginLeft="@dimen/description_horizontal_margin"
             android:layout_marginStart="@dimen/description_horizontal_margin"
             android:layout_marginRight="@dimen/description_horizontal_margin"
@@ -46,7 +47,8 @@
                 android:orientation="horizontal"
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true">
+                android:layout_alignParentLeft="true"
+                android:padding="@dimen/action_padding">
 
                 <ImageView
                     android:layout_weight="1"
@@ -54,16 +56,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src= "@drawable/ic_action_share"
-                    android:padding="@dimen/action_padding"/>
+                    />
 
 
-                <ImageView
+                <CheckBox
                     android:layout_weight="1"
                     android:id="@+id/favorite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@color/favorite_button"
-                    android:padding="@dimen/action_padding"/>
+                    android:layout_gravity="center"
+                    android:button="@drawable/favorite_button"
+                    android:layout_marginLeft="@dimen/star_left_padding"
+                    android:layout_marginStart="@dimen/star_left_padding"/>
             </LinearLayout>
 
             <Button

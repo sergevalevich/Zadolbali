@@ -1,20 +1,24 @@
 package com.valevich.zadolbali.adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.database.data.StoryEntry;
-
-import org.androidannotations.annotations.ViewById;
+import com.valevich.zadolbali.ui.StoryActionHandler;
 
 import java.util.List;
-import java.util.Locale;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by NotePad.by on 03.06.2016.
@@ -23,8 +27,11 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
     private List<StoryEntry> mStories;
 
-    public StoryAdapter (List<StoryEntry> stories) {
+    private StoryActionHandler mStoryActionHandler;
+
+    public StoryAdapter (List<StoryEntry> stories, StoryActionHandler storyActionHandler) {
         mStories = stories;
+        mStoryActionHandler = storyActionHandler;
     }
 
     @Override
@@ -43,25 +50,44 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     public int getItemCount() {
         return mStories.size();
     }
-
     class StoryViewHolder extends RecyclerView.ViewHolder {
 
-        @ViewById
+        @Bind(R.id.description)
         TextView description;
-        @ViewById
+        @Bind(R.id.share)
         ImageView share;
-        @ViewById
+        @Bind(R.id.more)
         Button more;
-        @ViewById
-        ImageView favorite;
+        @Bind(R.id.favorite)
+        CheckBox favorite;
+
+        @OnClick(R.id.share)
+        void share() {
+            mStoryActionHandler.share(mStories.get(getAdapterPosition()));
+        }
+        @OnClick(R.id.favorite)
+        void addToFavorite() {
+            mStoryActionHandler.addToFavorite(mStories.get(getAdapterPosition()));
+        }
+        @OnClick(R.id.more)
+        void readMore() {
+            mStoryActionHandler.more(mStories.get(getAdapterPosition()));
+        }
 
         public StoryViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this,itemView);
         }
 
         public void bindStory(StoryEntry story) {
             description.setText(story.getDescription());
+            if(story.getIsFavourite() == 1) {
+                favorite.setChecked(true);
+            } else {
+                favorite.setChecked(false);
+            }
         }
+
     }
 
     public void refresh(List<StoryEntry> expenses) {
