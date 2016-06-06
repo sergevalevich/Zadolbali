@@ -11,6 +11,6 @@ import retrofit.http.Query;
  * Created by NotePad.by on 03.06.2016.
  */
 public interface FetchStoriesApi {
-    @GET("/get")
+    @GET("/api/get")
     List<Story> getStories(@Query("site") String site, @Query("name") String name, @Query("num") int num);
 }

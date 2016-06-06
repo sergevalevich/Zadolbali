@@ -68,7 +68,7 @@ public class FavoriteStoryAdapter extends
 
          @OnClick(R.id.fav_more)
          void readMore() {
-            mStoryActionHandler.more(mStories.get(getAdapterPosition()));
+            mStoryActionHandler.more(getAdapterPosition(),StoryActionHandler.ONLY_FAVORITE_FLAG);
          }
 
          public FavoriteStoryHolder(View itemView) {
@@ -86,5 +86,19 @@ public class FavoriteStoryAdapter extends
         mStories.clear();
         mStories.addAll(expenses);
         notifyDataSetChanged();
+    }
+
+    public void remove(int position) {
+        mStories.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void add(int position, StoryEntry story) {
+        mStories.add(position,story);
+        notifyItemInserted(position);
+    }
+
+    public List<StoryEntry> getStories() {
+        return mStories;
     }
 }

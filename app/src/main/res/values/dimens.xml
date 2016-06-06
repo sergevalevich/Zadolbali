@@ -28,6 +28,12 @@
     <dimen name="star_left_padding">16dp</dimen>
     <dimen name="share_button_padding">8dp</dimen>
 
+
+
+
+    <dimen name="detail_root_padding">8dp</dimen>
+    <dimen name="detail_view_textSize">16sp</dimen>
+
     <!--&lt;!&ndash;list item margins per the Android Design guidelines. &ndash;&gt;-->
     <!--<dimen name="list_item_min_height">48dp</dimen>-->
     <!--<dimen name="list_item_text_size">16sp</dimen>-->

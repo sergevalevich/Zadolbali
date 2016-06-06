@@ -1,5 +1,6 @@
 package com.valevich.zadolbali.ui.fragments;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -9,6 +10,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,10 +19,11 @@ import android.widget.SearchView;
 
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.FavoriteStoryAdapter;
-import com.valevich.zadolbali.adapters.StoryAdapter;
 import com.valevich.zadolbali.database.data.StoryEntry;
+import com.valevich.zadolbali.network.RestClient;
 import com.valevich.zadolbali.ui.StoryActionHandler;
-import com.valevich.zadolbali.utils.UserNotifier;
+import com.valevich.zadolbali.ui.activities.DetailActivity_;
+import com.valevich.zadolbali.utils.StoryTouchHelper;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -52,8 +55,8 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler {
     @StringRes(R.string.search_hint)
     String mSearchHint;
 
-    @Bean
-    UserNotifier mUserNotifier;
+    @StringRes(R.string.share_dialog_msg)
+    String mShareDialogMessage;
 
     @ViewById(R.id.favorite_story_list)
     RecyclerView mStoryList;
@@ -135,9 +138,13 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler {
 
             @Override
             public void onLoadFinished(Loader<List<StoryEntry>> loader, List<StoryEntry> data) {
-                StoryAdapter adapter = (StoryAdapter) mStoryList.getAdapter();
+                FavoriteStoryAdapter adapter = (FavoriteStoryAdapter) mStoryList.getAdapter();
                 if (adapter == null) {
-                    mStoryList.setAdapter(new FavoriteStoryAdapter(data,FavoriteFragment.this));
+                    FavoriteStoryAdapter storyAdapter = new FavoriteStoryAdapter(data,FavoriteFragment.this);
+                    mStoryList.setAdapter(storyAdapter);
+                    ItemTouchHelper.Callback callback = new StoryTouchHelper(storyAdapter,mRootLayout,getActivity());
+                    ItemTouchHelper helper = new ItemTouchHelper(callback);
+                    helper.attachToRecyclerView(mStoryList);
                 } else {
                     adapter.refresh(data);
                 }
@@ -177,16 +184,33 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler {
 
     @Override
     public void share(StoryEntry story) {
-
+        Intent shareIntent = createShareIntent(RestClient.BASE_URL + story.getLink());
+        startActivity(Intent.createChooser(shareIntent,mShareDialogMessage));
     }
 
     @Override
-    public void more(StoryEntry story) {
-
+    public void more(int position, int flag) {
+        DetailActivity_.intent(getActivity())
+                .extra("story_number",position)
+                .extra("stories_flag",flag)
+                .start();
     }
 
     @Override
     public void addToFavorite(StoryEntry story) {
 
     }
+
+    private Intent createShareIntent(String storyText) {
+        Intent myShareIntent = new Intent(Intent.ACTION_SEND);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            myShareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        } else {
+            myShareIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        }
+        myShareIntent.setType("text/plain");
+        myShareIntent.putExtra(Intent.EXTRA_TEXT,storyText);
+        return myShareIntent;
+    }
+
 }

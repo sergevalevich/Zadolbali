@@ -26,7 +26,10 @@ import com.valevich.zadolbali.ui.fragments.StoriesFragment_;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+@OptionsMenu(R.menu.main_menu)
 @EActivity
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     Toolbar mToolbar;
     @ViewById(R.id.navigation_view)
     NavigationView mNavigationView;
+    @OptionsMenuItem(R.id.action_settings)
+    MenuItem mSettingsMenuItem;
 
     private ActionBarDrawerToggle mToggle;
     private FragmentManager mFragmentManager;

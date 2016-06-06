@@ -4,17 +4,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
 import android.text.Html;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,11 +26,12 @@ import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.StoryAdapter;
 import com.valevich.zadolbali.database.ZadolbaliDatabase;
 import com.valevich.zadolbali.database.data.StoryEntry;
+import com.valevich.zadolbali.network.RestClient;
 import com.valevich.zadolbali.network.RestService;
 import com.valevich.zadolbali.network.model.Story;
 import com.valevich.zadolbali.ui.StoryActionHandler;
+import com.valevich.zadolbali.ui.activities.DetailActivity_;
 import com.valevich.zadolbali.utils.NetworkStatusChecker;
-import com.valevich.zadolbali.utils.UserNotifier;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -64,14 +63,14 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
     @StringRes(R.string.network_unavailable_msg)
     String mNetworkUnavailableMessage;
 
+    @StringRes(R.string.share_dialog_msg)
+    String mShareDialogMessage;
+
     @ColorRes(R.color.colorPrimary)
     int mPrimaryColor;
 
     @Bean
     NetworkStatusChecker mNetworkStatusChecker;
-
-    @Bean
-    UserNotifier mUserNotifier;
 
     private static final String SEARCH_ID = "search_id";
 
@@ -100,7 +99,7 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
         if (mNetworkStatusChecker.isNetworkAvailable()) {
             downloadStories();
         } else {
-            mUserNotifier.notifyUser(mRootLayout, mNetworkUnavailableMessage);
+            notifyUser(mNetworkUnavailableMessage);
         }
     }
 
@@ -216,7 +215,8 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
             public void onLoadFinished(Loader<List<StoryEntry>> loader, List<StoryEntry> data) {
                 StoryAdapter adapter = (StoryAdapter) mStoryList.getAdapter();
                 if (adapter == null) {
-                    mStoryList.setAdapter(new StoryAdapter(data,StoriesFragment.this));
+                    StoryAdapter storyAdapter = new StoryAdapter(data,StoriesFragment.this);
+                    mStoryList.setAdapter(storyAdapter);
                 } else {
                     adapter.refresh(data);
                 }
@@ -227,19 +227,6 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
 
             }
         });
-    }
-
-    // TODO: 04.06.2016 REMOVE
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_refresh:
-                downloadStories();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private void customizeSearchViewOld(SearchView searchView) {
@@ -269,12 +256,16 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
 
     @Override
     public void share(StoryEntry story) {
-
+        Intent shareIntent = createShareIntent(RestClient.BASE_URL + story.getLink());
+        startActivity(Intent.createChooser(shareIntent,mShareDialogMessage));
     }
 
     @Override
-    public void more(StoryEntry story) {
-
+    public void more(int position, int flag) {
+        DetailActivity_.intent(getActivity())
+                .extra("story_number",position)
+                .extra("stories_flag",flag)
+                .start();
     }
 
     @Override
@@ -306,7 +297,7 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
     }
 
 
-    private Intent createShareIntent(String storyText) {
+    private Intent createShareIntent(String storyLink) {
         Intent myShareIntent = new Intent(Intent.ACTION_SEND);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             myShareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
@@ -314,8 +305,13 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
             myShareIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
         myShareIntent.setType("text/plain");
-        myShareIntent.putExtra(Intent.EXTRA_TEXT,storyText);
+        myShareIntent.putExtra(Intent.EXTRA_TEXT,storyLink);
         return myShareIntent;
+    }
+
+    public void notifyUser(String message) {
+        Snackbar.make(mRootLayout,message,Snackbar.LENGTH_LONG)
+                .show();
     }
 }
 

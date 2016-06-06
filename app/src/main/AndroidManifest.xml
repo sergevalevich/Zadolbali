@@ -26,7 +26,14 @@
         </activity>
         <activity android:name=".ui.activities.DetailActivity">
         </activity>
-        <activity android:name=".ui.activities.DetailActivity_">
+        <activity
+            android:name=".ui.activities.DetailActivity_"
+            android:parentActivityName=".ui.activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.valevich.zadolbali.ui.activities.MainActivity"/>
         </activity>
     </application>
 

@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransacti
 import com.valevich.zadolbali.database.ZadolbaliDatabase;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
  */
 @Table(database = ZadolbaliDatabase.class,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.IGNORE)})
-public class StoryEntry extends BaseModel {
+public class StoryEntry extends BaseModel implements Serializable{
 
     @PrimaryKey(autoincrement = true)
     long id;

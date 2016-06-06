@@ -11,7 +11,7 @@ import retrofit.RestAdapter;
  */
 @EBean
 public class RestClient {
-    private static final String BASE_URL = "http://www.umori.li/api";
+    public static final String BASE_URL = "http://www.umori.li";
 
     private FetchStoriesApi mFetchStoriesApi;
 

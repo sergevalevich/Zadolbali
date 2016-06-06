@@ -71,7 +71,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         }
         @OnClick(R.id.more)
         void readMore() {
-            mStoryActionHandler.more(mStories.get(getAdapterPosition()));
+            mStoryActionHandler.more(getAdapterPosition(),StoryActionHandler.ALL_STORIES_FLAG);
         }
 
         public StoryViewHolder(View itemView) {

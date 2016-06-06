@@ -13,4 +13,9 @@
     <string name="action_more">Читать далее</string>
     <string name="network_unavailable_msg">Сеть недоступна</string>
     <string name="action_share">Поделиться</string>
+    <string name="share_dialog_msg">Поделиться с помощью</string>
+    <string name="story_removed_from_fav_msg">История удалена из избранного</string>
+    <string name="undo_delete_action_msg">Отменить</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_favorite">Избранное</string>
 </resources>

@@ -50,6 +50,7 @@
                 android:gravity="center"
                 android:padding="@dimen/share_button_padding"
                 android:text="@string/action_share"
+                android:textColor="@color/button_color_text"
                 android:textSize="@dimen/card_button_textSize"/>
 
             <Button
@@ -62,6 +63,7 @@
                 android:gravity="center"
                 android:padding="@dimen/more_button_padding"
                 android:text="@string/action_more"
+                android:textColor="@color/button_color_text"
                 android:textSize="@dimen/card_button_textSize"/>
 
         </RelativeLayout>
