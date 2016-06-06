@@ -5,12 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.database.data.StoryEntry;
-import com.valevich.zadolbali.ui.StoryActionHandler;
+import com.valevich.zadolbali.utils.StoryActionHandler;
 
 import java.util.List;
 

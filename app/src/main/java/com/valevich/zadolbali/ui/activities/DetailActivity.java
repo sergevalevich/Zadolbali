@@ -1,13 +1,9 @@
 package com.valevich.zadolbali.ui.activities;
 
 
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -15,14 +11,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.StorySlidePagerAdapter;
 import com.valevich.zadolbali.database.data.StoryEntry;
 import com.valevich.zadolbali.network.RestClient;
-import com.valevich.zadolbali.ui.StoryActionHandler;
+import com.valevich.zadolbali.utils.StoryActionHandler;
 import com.valevich.zadolbali.utils.StarActionProvider;
 
 import org.androidannotations.annotations.AfterExtras;
@@ -30,8 +25,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 

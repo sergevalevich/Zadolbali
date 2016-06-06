@@ -1,4 +1,4 @@
-package com.valevich.zadolbali.ui;
+package com.valevich.zadolbali.utils;
 
 import com.valevich.zadolbali.database.data.StoryEntry;
 

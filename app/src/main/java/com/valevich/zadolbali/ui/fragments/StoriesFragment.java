@@ -30,7 +30,7 @@ import com.valevich.zadolbali.database.data.StoryEntry;
 import com.valevich.zadolbali.network.RestClient;
 import com.valevich.zadolbali.network.RestService;
 import com.valevich.zadolbali.network.model.Story;
-import com.valevich.zadolbali.ui.StoryActionHandler;
+import com.valevich.zadolbali.utils.StoryActionHandler;
 import com.valevich.zadolbali.ui.activities.DetailActivity_;
 import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.NetworkStatusChecker;

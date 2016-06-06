@@ -33,7 +33,7 @@ public class StoryTouchHelper extends ItemTouchHelper.SimpleCallback  {
     private Context mContext;
 
     public StoryTouchHelper(FavoriteStoryAdapter storyAdapter, ViewGroup root, Context context){
-        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT);
         mStoryAdapter = storyAdapter;
         mRoot = root;
         mContext = context;

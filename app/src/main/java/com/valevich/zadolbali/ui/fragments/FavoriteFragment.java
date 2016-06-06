@@ -21,14 +21,13 @@ import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.FavoriteStoryAdapter;
 import com.valevich.zadolbali.database.data.StoryEntry;
 import com.valevich.zadolbali.network.RestClient;
-import com.valevich.zadolbali.ui.StoryActionHandler;
+import com.valevich.zadolbali.utils.StoryActionHandler;
 import com.valevich.zadolbali.ui.activities.DetailActivity_;
 import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.StoryTouchHelper;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
