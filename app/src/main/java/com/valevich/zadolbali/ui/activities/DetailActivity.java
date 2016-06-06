@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.valevich.zadolbali.R;
@@ -41,6 +42,8 @@ public class DetailActivity extends AppCompatActivity {
 
     private static final String TAG = DetailActivity.class.getSimpleName();
     private static final String KEY_CURRENT_PAGE = "PAGE";
+
+    private StarActionProvider mStarActionProvider;
 
     @ViewById(R.id.toolbar)
     Toolbar mToolbar;
@@ -104,26 +107,62 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_PAGE,mPager.getCurrentItem());
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onRestoreInstanceState(savedInstanceState, persistentState);
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         mStoryNumber = savedInstanceState.getInt(KEY_CURRENT_PAGE,0);
         mPager.setCurrentItem(mStoryNumber);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.activity_detail_menu,menu);
+        MenuItem starItem = menu.findItem(R.id.action_favorite);
+        mStarActionProvider = new StarActionProvider(this,mStories.get(mPager.getCurrentItem()));
+        MenuItemCompat.setActionProvider(starItem,mStarActionProvider);
+
+        MenuItem shareItem = menu.findItem(R.id.action_share);
+        ShareActionProvider shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+        Intent shareIntent = createShareIntent();
+        if(shareActionProvider != null && shareIntent != null) {
+            shareActionProvider.setShareIntent(shareIntent);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_test:
+                Log.d(TAG, mPager.getCurrentItem() + "");
+                return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
+    private Intent createShareIntent() {
+        Intent myShareIntent = new Intent(Intent.ACTION_SEND);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            myShareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        } else {
+            myShareIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        }
+        myShareIntent.setType("text/plain");
+        myShareIntent.putExtra(Intent.EXTRA_TEXT, RestClient.BASE_URL + getCurrentStoryLink());
+        return myShareIntent;
+    }
+
+    private String getCurrentStoryLink() {
+        return mStories.get(mPager.getCurrentItem()).getLink();
+    }
 }

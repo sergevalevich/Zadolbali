@@ -17,5 +17,4 @@
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider">
     </item>
 
-
 </menu>

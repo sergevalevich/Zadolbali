@@ -23,7 +23,7 @@ public class StorySlidePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return StorySlideFragment.newInstance(mStories.get(position));
+        return StorySlideFragment.newInstance(mStories.get(position).getDescription());
     }
 
     @Override
