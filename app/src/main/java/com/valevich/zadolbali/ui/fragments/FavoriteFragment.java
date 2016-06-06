@@ -23,6 +23,7 @@ import com.valevich.zadolbali.database.data.StoryEntry;
 import com.valevich.zadolbali.network.RestClient;
 import com.valevich.zadolbali.ui.StoryActionHandler;
 import com.valevich.zadolbali.ui.activities.DetailActivity_;
+import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.StoryTouchHelper;
 
 import org.androidannotations.annotations.AfterViews;
@@ -44,7 +45,8 @@ import java.util.List;
  */
 @OptionsMenu(R.menu.search_menu)
 @EFragment(R.layout.fragment_favorite)
-public class FavoriteFragment extends Fragment implements StoryActionHandler {
+public class FavoriteFragment extends Fragment implements StoryActionHandler,
+        IVisible{
 
     @ViewById(R.id.coordinator)
     CoordinatorLayout mRootLayout;
@@ -213,4 +215,8 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler {
         return myShareIntent;
     }
 
+    @Override
+    public void onVisible() {
+        restartLoader();
+    }
 }

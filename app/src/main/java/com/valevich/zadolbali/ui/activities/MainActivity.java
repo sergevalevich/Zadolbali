@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.SectionsPagerAdapter;
+import com.valevich.zadolbali.utils.IVisible;
 
 
 import org.androidannotations.annotations.AfterViews;
@@ -46,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     @StringRes(R.string.app_name)
     String mAppName;
 
+    private IVisible mVisibleFragment;
+
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,14 +59,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTabs() {
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
-        mViewPager.setAdapter(sectionsPagerAdapter);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                switch (tab.getPosition()) {
+                int tabNumber = tab.getPosition();
+                switch (tabNumber) {
                     case 0:
                         setTitle(mAllStoriesTabTitle);
                         break;
@@ -71,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         setTitle(mAppName);
                         break;
+                }
+                mVisibleFragment = (IVisible) mSectionsPagerAdapter.instantiateItem(mViewPager,tabNumber);
+                if(mVisibleFragment != null) {
+                    mVisibleFragment.onVisible();
                 }
             }
 

@@ -32,6 +32,7 @@ import com.valevich.zadolbali.network.RestService;
 import com.valevich.zadolbali.network.model.Story;
 import com.valevich.zadolbali.ui.StoryActionHandler;
 import com.valevich.zadolbali.ui.activities.DetailActivity_;
+import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.NetworkStatusChecker;
 
 import org.androidannotations.annotations.AfterViews;
@@ -50,7 +51,8 @@ import java.util.List;
 
 @OptionsMenu(R.menu.search_menu)
 @EFragment(R.layout.fragment_stories)
-public class StoriesFragment extends Fragment implements StoryActionHandler {
+public class StoriesFragment extends Fragment implements StoryActionHandler,
+        IVisible{
 
     @ViewById(R.id.coordinator)
     CoordinatorLayout mRootLayout;
@@ -335,6 +337,11 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
     public void notifyUser(String message) {
         Snackbar.make(mRootLayout,message,Snackbar.LENGTH_LONG)
                 .show();
+    }
+
+    @Override
+    public void onVisible() {
+        restartLoader();
     }
 }
 
