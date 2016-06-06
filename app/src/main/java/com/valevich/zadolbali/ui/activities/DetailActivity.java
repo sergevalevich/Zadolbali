@@ -135,21 +135,6 @@ public class DetailActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_test:
-                Log.d(TAG, mPager.getCurrentItem() + "");
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private Intent createShareIntent() {
         Intent myShareIntent = new Intent(Intent.ACTION_SEND);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
