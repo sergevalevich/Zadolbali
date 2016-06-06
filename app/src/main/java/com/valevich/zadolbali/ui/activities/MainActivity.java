@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                         setTitle(mAppName);
                         break;
                 }
+                mViewPager.setCurrentItem(tabNumber);
                 mVisibleFragment = (IVisible) mSectionsPagerAdapter.instantiateItem(mViewPager,tabNumber);
                 if(mVisibleFragment != null) {
                     mVisibleFragment.onVisible();
