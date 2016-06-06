@@ -42,12 +42,11 @@ public class StoryEntry extends BaseModel implements Serializable{
     private int isRead;
 
     @Column
+    private int date;
+
+    @Column
     @Unique(unique = false, uniqueGroups = 1)
     private String link;
-
-    private static List<StoryEntry> mStories;
-
-    private static List<StoryEntry> mFavoriteStories;
 
     public long getId() {
         return id;
@@ -97,49 +96,28 @@ public class StoryEntry extends BaseModel implements Serializable{
         this.link = link;
     }
 
+    public int getDate() {
+        return date;
+    }
+
+    public void setDate(int date) {
+        this.date = date;
+    }
+
     public static List<StoryEntry> getAllStories(String filter) {
-
-//        SQLite.select()
-//                .from(StoryEntry.class)
-//                .where(StoryEntry_Table.description.like("%" + filter + "%"))
-//                .async()
-//                .queryResultCallback(new QueryTransaction.QueryResultCallback<StoryEntry>() {
-//                    @Override
-//                    public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<StoryEntry> result) {
-//                        mStories = result.toList();
-//                    }
-//                }).execute();
-
         return SQLite.select()
                 .from(StoryEntry.class)
                 .where(StoryEntry_Table.description.like("%" + filter + "%"))
+                .orderBy(StoryEntry_Table.date,false)
                 .queryList();
     }
 
     public static List<StoryEntry> getAllFavoriteStories(String filter) {
-//        SQLite.select()
-//                .from(StoryEntry.class)
-//                .where(StoryEntry_Table.isFavourite.eq(1))
-//                .and(StoryEntry_Table.description.like("%" + filter + "%"))
-//                .async()
-//                .queryResultCallback(new QueryTransaction.QueryResultCallback<StoryEntry>() {
-//                    @Override
-//                    public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<StoryEntry> result) {
-//                        mFavoriteStories = result.toList();
-//                    }
-//                }).execute();
-//
-//        try {
-//            Thread.sleep(10000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return mFavoriteStories;
         return SQLite.select()
                 .from(StoryEntry.class)
                 .where(StoryEntry_Table.isFavourite.eq(1))
                 .and(StoryEntry_Table.description.like("%" + filter + "%"))
+                .orderBy(StoryEntry_Table.date,false)
                 .queryList();
     }
 

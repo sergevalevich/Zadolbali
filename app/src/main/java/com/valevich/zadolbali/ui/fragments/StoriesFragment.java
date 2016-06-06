@@ -47,6 +47,7 @@ import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.api.BackgroundExecutor;
 
+import java.util.Date;
 import java.util.List;
 
 @OptionsMenu(R.menu.search_menu)
@@ -169,6 +170,8 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
     private void saveStories(final List<Story> downloadedStories) {
         StoryEntry[] stories = new StoryEntry[downloadedStories.size()];
 
+        final int time = (int) new Date().getTime();
+
         DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
 
         ProcessModelTransaction<StoryEntry> processModelTransaction =
@@ -192,6 +195,7 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
                         story.setIsRead(0);
                         story.setLink(link);
                         story.setSource(source);
+                        story.setDate(time);
 
                         story.save();
                     }
