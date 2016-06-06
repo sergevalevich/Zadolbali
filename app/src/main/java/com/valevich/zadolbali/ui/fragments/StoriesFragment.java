@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -79,27 +80,46 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
     @ViewById(R.id.story_list)
     RecyclerView mStoryList;
 
+    @ViewById(R.id.swiperefresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     @Bean
     RestService mRestService;
 
     @AfterViews
     void setupViews() {
         setUpRecyclerView();
+        setUpRefresh();
     }
 
     private void setUpRecyclerView() {
         mStoryList.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
+    private void setUpRefresh() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshStories();
+            }
+        });
+        mSwipeRefreshLayout.setColorSchemeResources(
+                R.color.colorAccent);
+    }
 
     @Override
     public void onResume() {
         super.onResume();
         restartLoader();
+        refreshStories();
+    }
+
+    private void refreshStories() {
         if (mNetworkStatusChecker.isNetworkAvailable()) {
             downloadStories();
         } else {
             notifyUser(mNetworkUnavailableMessage);
+            if(mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -213,6 +233,9 @@ public class StoriesFragment extends Fragment implements StoryActionHandler {
 
             @Override
             public void onLoadFinished(Loader<List<StoryEntry>> loader, List<StoryEntry> data) {
+                if(mSwipeRefreshLayout.isRefreshing()) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
                 StoryAdapter adapter = (StoryAdapter) mStoryList.getAdapter();
                 if (adapter == null) {
                     StoryAdapter storyAdapter = new StoryAdapter(data,StoriesFragment.this);

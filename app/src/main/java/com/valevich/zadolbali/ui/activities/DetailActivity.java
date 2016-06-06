@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -39,6 +40,8 @@ import java.util.List;
 public class DetailActivity extends AppCompatActivity {
 
     private static final String TAG = DetailActivity.class.getSimpleName();
+    private static final String KEY_CURRENT_PAGE = "PAGE";
+
     @ViewById(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -98,6 +101,19 @@ public class DetailActivity extends AppCompatActivity {
             mStories = StoryEntry.getAllStories("");
         }
         setupViewPager(mStories);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(KEY_CURRENT_PAGE,mPager.getCurrentItem());
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        mStoryNumber = savedInstanceState.getInt(KEY_CURRENT_PAGE,0);
+        mPager.setCurrentItem(mStoryNumber);
     }
 
     @Override
