@@ -1,17 +1,6 @@
 <resources>
     <dimen name="default_layout_padding">16dp</dimen>
 
-    <!-- Default navigation drawer margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="drawer_header_layout_height">172dp</dimen>
-    <dimen name="drawer_status_bar_height">25dp</dimen>
-    <dimen name="profile_margin">16dp</dimen>
-    <dimen name="profile_image_size">64dp</dimen>
-    <dimen name="subtitle_height">56dp</dimen>
-    <dimen name="subtitle_text_size">14sp</dimen>
-    <dimen name="drawer_header_content_divider">5dp</dimen>
-
     <!--&lt;!&ndash; Default card's margins styling per the Android Design guidelines. &ndash;&gt;-->
     <dimen name="story_card_corner_radius">2dp</dimen>
     <dimen name="primary_text_size">16sp</dimen>
@@ -33,12 +22,8 @@
 
     <dimen name="detail_root_padding">8dp</dimen>
     <dimen name="detail_view_textSize">16sp</dimen>
+    <dimen name="tab_indicator_height">2dp</dimen>
 
-    <!--&lt;!&ndash;list item margins per the Android Design guidelines. &ndash;&gt;-->
-    <!--<dimen name="list_item_min_height">48dp</dimen>-->
-    <!--<dimen name="list_item_text_size">16sp</dimen>-->
-    <!--<dimen name="list_item_side_padding">16dp</dimen>-->
-    <!--<dimen name="recyclerView_top_padding">16dp</dimen>-->
 
 
 </resources>

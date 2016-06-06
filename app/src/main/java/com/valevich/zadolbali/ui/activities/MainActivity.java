@@ -1,69 +1,95 @@
 package com.valevich.zadolbali.ui.activities;
 
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.valevich.zadolbali.R;
-import com.valevich.zadolbali.ui.fragments.FavoriteFragment;
-import com.valevich.zadolbali.ui.fragments.FavoriteFragment_;
-import com.valevich.zadolbali.ui.fragments.SettingsFragment_;
-import com.valevich.zadolbali.ui.fragments.StoriesFragment;
-import com.valevich.zadolbali.ui.fragments.StoriesFragment_;
+import com.valevich.zadolbali.adapters.SectionsPagerAdapter;
+
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.res.StringRes;
+
 @OptionsMenu(R.menu.main_menu)
 @EActivity
-public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String TOOLBAR_TITLE_KEY = "TOOLBAR_TITLE";
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-    @ViewById(R.id.drawer_layout)
-    DrawerLayout mDrawerLayout;
     @ViewById(R.id.toolbar)
     Toolbar mToolbar;
-    @ViewById(R.id.navigation_view)
-    NavigationView mNavigationView;
     @OptionsMenuItem(R.id.action_settings)
     MenuItem mSettingsMenuItem;
 
-    private ActionBarDrawerToggle mToggle;
-    private FragmentManager mFragmentManager;
+    @ViewById(R.id.container)
+    ViewPager mViewPager;
+
+    @ViewById(R.id.tabLayout)
+    TabLayout mTabLayout;
+
+    @StringRes(R.string.tab_stories)
+    String mAllStoriesTabTitle;
+
+    @StringRes(R.string.tab_favorite)
+    String mFavoriteTabTitle;
+
+    @StringRes(R.string.app_name)
+    String mAppName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState == null) {
-            replaceFragment(new StoriesFragment_());
-        }
+    }
 
+    private void setupTabs() {
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
+        mViewPager.setAdapter(sectionsPagerAdapter);
+        mTabLayout.setupWithViewPager(mViewPager);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0:
+                        setTitle(mAllStoriesTabTitle);
+                        break;
+                    case 1:
+                        setTitle(mFavoriteTabTitle);
+                        break;
+                    default:
+                        setTitle(mAppName);
+                        break;
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     @AfterViews
     void setupViews() {
         setupActionBar();
-        setupDrawerLayout();
-        setupFragmentManager();
+        setupTabs();
     }
 
     @Override
@@ -81,106 +107,16 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
     @Override
     public void onBackPressed() {
-        if(mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else if (mFragmentManager.getBackStackEntryCount() == 1) {
-            finish();
+        if(mViewPager.getCurrentItem() == 1) {
+            mViewPager.setCurrentItem(0);
         } else {
             super.onBackPressed();
         }
-
-    }
-
-
-    private void setupNavigationContent(final NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                if(mDrawerLayout != null) {
-                    mDrawerLayout.closeDrawer(GravityCompat.START);
-                }
-                int itemId = item.getItemId();
-                switch (itemId) {
-                    case R.id.drawer_stories:
-                        replaceFragment(new StoriesFragment_());
-                        break;
-                    case R.id.drawer_favorite:
-                        replaceFragment(new FavoriteFragment_());
-                        break;
-                    case R.id.drawer_settings:
-                        replaceFragment(new SettingsFragment_());
-                        break;
-                }
-                return true;
-            }
-        });
-    }
-
-
-    private void changeToolbarTitle(String backStackEntryName) {
-        if(backStackEntryName.equals(StoriesFragment_.class.getName())) {
-            setTitle(getString(R.string.nav_drawer_stories));
-            mNavigationView.setCheckedItem(R.id.drawer_stories);
-        } else if(backStackEntryName.equals(FavoriteFragment_.class.getName())) {
-            setTitle(getString(R.string.nav_drawer_favorite));
-            mNavigationView.setCheckedItem(R.id.drawer_favorite);
-        } else {
-            setTitle(getString(R.string.nav_drawer_settings));
-            mNavigationView.setCheckedItem(R.id.drawer_settings);
-        }
-    }
-
-
-    private void setupDrawerLayout() {
-        setupNavigationContent(mNavigationView);
-        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout
-                ,mToolbar
-                ,R.string.navigation_drawer_open
-                ,R.string.navigation_drawer_close);
-        mToggle.syncState();
-        mDrawerLayout.addDrawerListener(mToggle);
-        setTitle(R.string.app_name);
     }
 
     private void setupActionBar() {
         setSupportActionBar(mToolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    private void replaceFragment(Fragment fragment) {
-        String backStackName = fragment.getClass().getName();
-
-        boolean isFragmentPopped = mFragmentManager.popBackStackImmediate(backStackName,0);
-
-        if(!isFragmentPopped && mFragmentManager.findFragmentByTag(backStackName) == null) {
-
-            FragmentTransaction transaction = mFragmentManager.beginTransaction();
-            transaction.replace(R.id.main_container,fragment,backStackName);
-            transaction.addToBackStack(backStackName);
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.commit();
-
-        }
-    }
-
-    private void setupFragmentManager() {
-        mFragmentManager = getSupportFragmentManager();
-        mFragmentManager.addOnBackStackChangedListener(this);
-    }
-
-    @Override
-    public void onBackStackChanged() {
-
-        Fragment f = mFragmentManager
-                .findFragmentById(R.id.main_container);
-
-        if(f != null) {
-            changeToolbarTitle(f.getClass().getName());
-        }
-
+        setTitle(mAllStoriesTabTitle);
     }
 
 }
