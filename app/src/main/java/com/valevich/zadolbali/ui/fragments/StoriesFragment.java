@@ -19,21 +19,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
 
-import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.StoryAdapter;
-import com.valevich.zadolbali.database.ZadolbaliDatabase;
 import com.valevich.zadolbali.database.data.StoryEntry;
+import com.valevich.zadolbali.eventbus.RemovedStoryEvent;
 import com.valevich.zadolbali.network.RestClient;
 import com.valevich.zadolbali.network.RestService;
 import com.valevich.zadolbali.network.model.Story;
+import com.valevich.zadolbali.utils.Constants;
+import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.StoryActionHandler;
 import com.valevich.zadolbali.ui.activities.DetailActivity_;
-import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.NetworkStatusChecker;
+import com.valevich.zadolbali.utils.StoryEditor;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -46,14 +44,17 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.api.BackgroundExecutor;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @OptionsMenu(R.menu.search_menu)
 @EFragment(R.layout.fragment_stories)
 public class StoriesFragment extends Fragment implements StoryActionHandler,
-        IVisible{
+        IVisible {
 
     @ViewById(R.id.coordinator)
     CoordinatorLayout mRootLayout;
@@ -111,6 +112,18 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         restartLoader();
@@ -122,7 +135,7 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
             downloadStories();
         } else {
             notifyUser(mNetworkUnavailableMessage);
-            if(mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
+            if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -172,51 +185,42 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
 
         final int time = (int) new Date().getTime();
 
-        DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
+        StoryEntry.editStories(stories, new StoryEditor() {
+            @Override
+            public void editStory(StoryEntry story) {
 
-        ProcessModelTransaction<StoryEntry> processModelTransaction =
-                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<StoryEntry>() {
-                    @Override
-                    public void processModel(StoryEntry story) {
+            }
 
-                    }
-                }).processListener(new ProcessModelTransaction.OnModelProcessListener<StoryEntry>() {
-                    @Override
-                    public void onModelProcessed(long current, long total, StoryEntry story) {
-                        story = new StoryEntry();
-                        Story downloadedStory = downloadedStories.get((int) current);
+            @Override
+            public void onStoryEdited(long current, long total, StoryEntry story) {
 
-                        String description = Html.fromHtml(downloadedStory.getElementPureHtml()).toString();
-                        String link = downloadedStory.getLink();
-                        String source = downloadedStory.getSite();
+                story = new StoryEntry();
+                Story downloadedStory = downloadedStories.get((int) current);
+                String description = Html.fromHtml(downloadedStory.getElementPureHtml()).toString();
+                String link = downloadedStory.getLink();
+                String source = downloadedStory.getSite();
 
-                        story.setDescription(description);
-                        story.setIsFavourite(0);
-                        story.setIsRead(0);
-                        story.setLink(link);
-                        story.setSource(source);
-                        story.setDate(time);
+                story.setDescription(description);
+                story.setIsFavourite(0);
+                story.setIsRead(0);
+                story.setLink(link);
+                story.setSource(source);
+                story.setDate(time);
 
-                        story.save();
-                    }
-                }).addAll(stories).build();
+                story.save();
 
-        Transaction transaction = database.beginTransactionAsync(processModelTransaction)
-                .success(new Transaction.Success() {
-                    @Override
-                    public void onSuccess(Transaction transaction) {
-                        restartLoader();
-                    }
-                })
-                .error(new Transaction.Error() {
-                    @Override
-                    public void onError(Transaction transaction, Throwable error) {
+            }
 
-                    }
-                })
-                .build();
+            @Override
+            public void onEditedSuccess() {
+                restartLoader();
+            }
 
-        transaction.execute();
+            @Override
+            public void onEditedError() {
+
+            }
+        });
 
     }
 
@@ -239,12 +243,12 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
 
             @Override
             public void onLoadFinished(Loader<List<StoryEntry>> loader, List<StoryEntry> data) {
-                if(mSwipeRefreshLayout.isRefreshing()) {
+                if (mSwipeRefreshLayout.isRefreshing()) {
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
                 StoryAdapter adapter = (StoryAdapter) mStoryList.getAdapter();
                 if (adapter == null) {
-                    StoryAdapter storyAdapter = new StoryAdapter(data,StoriesFragment.this);
+                    StoryAdapter storyAdapter = new StoryAdapter(data, StoriesFragment.this);
                     mStoryList.setAdapter(storyAdapter);
                 } else {
                     adapter.refresh(data);
@@ -286,42 +290,43 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
     @Override
     public void share(StoryEntry story) {
         Intent shareIntent = createShareIntent(RestClient.BASE_URL + story.getLink());
-        startActivity(Intent.createChooser(shareIntent,mShareDialogMessage));
+        startActivity(Intent.createChooser(shareIntent, mShareDialogMessage));
     }
 
     @Override
     public void more(int position, int flag) {
         DetailActivity_.intent(getActivity())
-                .extra("story_number",position)
-                .extra("stories_flag",flag)
+                .extra(Constants.KEY_INTENT_STORY_NUMBER, position)
+                .extra(Constants.KEY_INTENT_STORY_FLAG, flag)
                 .start();
     }
 
     @Override
     public void addToFavorite(StoryEntry story) {
 
-        DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
+        StoryEntry.editStories(new StoryEntry[]{story}, new StoryEditor() {
+            @Override
+            public void editStory(StoryEntry story) {
+                if (story.getIsFavourite() == 0) story.setIsFavourite(1);
+                else story.setIsFavourite(0);
+                story.save();
+            }
 
-        ProcessModelTransaction<StoryEntry> processModelTransaction =
-                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<StoryEntry>() {
-                    @Override
-                    public void processModel(StoryEntry story) {
-                        if(story.getIsFavourite() == 0) story.setIsFavourite(1);
-                        else story.setIsFavourite(0);
-                        story.save();
-                    }
-                }).processListener(new ProcessModelTransaction.OnModelProcessListener<StoryEntry>() {
-                    @Override
-                    public void onModelProcessed(long current, long total, StoryEntry story) {
+            @Override
+            public void onStoryEdited(long current, long total, StoryEntry story) {
 
-                    }
-                }).addAll(story).build();
+            }
 
-        Transaction transaction = database
-                .beginTransactionAsync(processModelTransaction)
-                .build();
+            @Override
+            public void onEditedSuccess() {
 
-        transaction.execute();
+            }
+
+            @Override
+            public void onEditedError() {
+
+            }
+        });
 
     }
 
@@ -334,13 +339,18 @@ public class StoriesFragment extends Fragment implements StoryActionHandler,
             myShareIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
         myShareIntent.setType("text/plain");
-        myShareIntent.putExtra(Intent.EXTRA_TEXT,storyLink);
+        myShareIntent.putExtra(Intent.EXTRA_TEXT, storyLink);
         return myShareIntent;
     }
 
     public void notifyUser(String message) {
-        Snackbar.make(mRootLayout,message,Snackbar.LENGTH_LONG)
+        Snackbar.make(mRootLayout, message, Snackbar.LENGTH_LONG)
                 .show();
+    }
+
+    @Subscribe
+    public void onStoryRemoved(RemovedStoryEvent event) {
+        restartLoader();
     }
 
     @Override

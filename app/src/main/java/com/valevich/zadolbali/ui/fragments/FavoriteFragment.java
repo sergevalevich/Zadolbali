@@ -3,7 +3,6 @@ package com.valevich.zadolbali.ui.fragments;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -20,10 +19,12 @@ import android.widget.SearchView;
 import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.FavoriteStoryAdapter;
 import com.valevich.zadolbali.database.data.StoryEntry;
+import com.valevich.zadolbali.eventbus.RemovedStoryEvent;
 import com.valevich.zadolbali.network.RestClient;
+import com.valevich.zadolbali.utils.Constants;
+import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.StoryActionHandler;
 import com.valevich.zadolbali.ui.activities.DetailActivity_;
-import com.valevich.zadolbali.utils.IVisible;
 import com.valevich.zadolbali.utils.StoryTouchHelper;
 
 import org.androidannotations.annotations.AfterViews;
@@ -36,6 +37,8 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.ColorRes;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.api.BackgroundExecutor;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -47,8 +50,7 @@ import java.util.List;
 public class FavoriteFragment extends Fragment implements StoryActionHandler,
         IVisible{
 
-    @ViewById(R.id.coordinator)
-    CoordinatorLayout mRootLayout;
+    private static final String TAG = FavoriteFragment.class.getSimpleName();
 
     @OptionsMenuItem(R.id.action_search)
     MenuItem mSearchMenuItem;
@@ -65,6 +67,8 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler,
     @ColorRes(R.color.colorPrimary)
     int mPrimaryColor;
 
+    private StoryTouchHelper mStoryTouchHelper;
+
     private static final String SEARCH_ID = "search_id";
 
     private static final int FAVORITE_STORY_LOADER = 1;
@@ -78,6 +82,17 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler,
         mStoryList.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 
     @Override
     public void onResume() {
@@ -143,9 +158,10 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler,
                 if (adapter == null) {
                     FavoriteStoryAdapter storyAdapter = new FavoriteStoryAdapter(data,FavoriteFragment.this);
                     mStoryList.setAdapter(storyAdapter);
-                    ItemTouchHelper.Callback callback = new StoryTouchHelper(storyAdapter,mRootLayout,getActivity());
-                    ItemTouchHelper helper = new ItemTouchHelper(callback);
-                    helper.attachToRecyclerView(mStoryList);
+                    mStoryTouchHelper = new StoryTouchHelper(storyAdapter,getActivity());
+                    ItemTouchHelper.Callback callback = mStoryTouchHelper;
+                    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+                    itemTouchHelper.attachToRecyclerView(mStoryList);
                 } else {
                     adapter.refresh(data);
                 }
@@ -192,8 +208,8 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler,
     @Override
     public void more(int position, int flag) {
         DetailActivity_.intent(getActivity())
-                .extra("story_number",position)
-                .extra("stories_flag",flag)
+                .extra(Constants.KEY_INTENT_STORY_NUMBER,position)
+                .extra(Constants.KEY_INTENT_STORY_FLAG,flag)
                 .start();
     }
 
@@ -212,6 +228,11 @@ public class FavoriteFragment extends Fragment implements StoryActionHandler,
         myShareIntent.setType("text/plain");
         myShareIntent.putExtra(Intent.EXTRA_TEXT,storyText);
         return myShareIntent;
+    }
+
+    @Subscribe
+    public void onStoryRemoved(RemovedStoryEvent event) {
+        restartLoader();
     }
 
     @Override

@@ -78,10 +78,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 mViewPager.setCurrentItem(tabNumber);
-                mVisibleFragment = (IVisible) mSectionsPagerAdapter.instantiateItem(mViewPager,tabNumber);
-                if(mVisibleFragment != null) {
-                    mVisibleFragment.onVisible();
-                }
+                mVisibleFragment = (IVisible) mSectionsPagerAdapter
+                        .instantiateItem(mViewPager,tabNumber);
+                if(mVisibleFragment != null) mVisibleFragment.onVisible();
             }
 
             @Override

@@ -1,5 +1,6 @@
 package com.valevich.zadolbali.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +18,10 @@ import com.valevich.zadolbali.adapters.FavoriteStoryAdapter;
 import com.valevich.zadolbali.adapters.StoryAdapter;
 import com.valevich.zadolbali.database.ZadolbaliDatabase;
 import com.valevich.zadolbali.database.data.StoryEntry;
+import com.valevich.zadolbali.eventbus.RemovedStoryEvent;
 import com.valevich.zadolbali.network.model.Story;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -28,15 +32,15 @@ public class StoryTouchHelper extends ItemTouchHelper.SimpleCallback  {
 
     private FavoriteStoryAdapter mStoryAdapter;
 
-    private ViewGroup mRoot;
+    private View mRoot;
 
     private Context mContext;
 
-    public StoryTouchHelper(FavoriteStoryAdapter storyAdapter, ViewGroup root, Context context){
+    public StoryTouchHelper(FavoriteStoryAdapter storyAdapter, Context context){
         super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT);
         mStoryAdapter = storyAdapter;
-        mRoot = root;
         mContext = context;
+        mRoot = ((Activity) mContext).findViewById(R.id.root_main);
     }
 
     @Override
@@ -52,11 +56,11 @@ public class StoryTouchHelper extends ItemTouchHelper.SimpleCallback  {
         final StoryEntry storyToRemove = mStoryAdapter.getStories().get(itemCount);
         mStoryAdapter.remove(itemCount);
 
-        Snackbar snackbar = Snackbar.make(mRoot,mContext.getString(R.string.story_removed_from_fav_msg),Snackbar.LENGTH_LONG)
+        Snackbar snackbar = Snackbar.make(mRoot, mContext.getString(R.string.story_removed_from_fav_msg), Snackbar.LENGTH_LONG)
                 .setAction(mContext.getString(R.string.undo_delete_action_msg), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mStoryAdapter.add(itemCount,storyToRemove);
+                        mStoryAdapter.add(itemCount, storyToRemove);
                     }
                 });
 
@@ -75,30 +79,30 @@ public class StoryTouchHelper extends ItemTouchHelper.SimpleCallback  {
 
     private void deleteStoryFromFavorite(StoryEntry storyToRemove) {
 
-        DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
+        StoryEntry.editStories(new StoryEntry[]{storyToRemove}, new StoryEditor() {
+            @Override
+            public void editStory(StoryEntry story) {
+                story.setIsFavourite(0);
+                story.save();
+            }
 
-        ProcessModelTransaction<StoryEntry> processModelTransaction =
-                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<StoryEntry>() {
-                    @Override
-                    public void processModel(StoryEntry story) {
-                        story.setIsFavourite(0);
-                        story.save();
-                    }
-                }).processListener(new ProcessModelTransaction.OnModelProcessListener<StoryEntry>() {
-                    @Override
-                    public void onModelProcessed(long current, long total, StoryEntry story) {
+            @Override
+            public void onStoryEdited(long current, long total, StoryEntry story) {
 
-                    }
-                }).addAll(storyToRemove).build();
+            }
 
-        Transaction transaction = database
-                .beginTransactionAsync(processModelTransaction)
-                .build();
+            @Override
+            public void onEditedSuccess() {
+                EventBus.getDefault().post(new RemovedStoryEvent());
+            }
 
-        transaction.execute();
+            @Override
+            public void onEditedError() {
+
+            }
+        });
 
     }
-
 
 }
 

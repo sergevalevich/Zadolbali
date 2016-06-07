@@ -15,7 +15,7 @@ import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.database.ZadolbaliDatabase;
 import com.valevich.zadolbali.database.data.StoryEntry;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -24,7 +24,7 @@ import butterknife.OnClick;
  */
 public class StarActionProvider extends ActionProvider {
 
-    @Bind(R.id.star)
+    @BindView(R.id.star)
     CheckBox mCheckBox;
 
     private Context mContext;
@@ -61,28 +61,29 @@ public class StarActionProvider extends ActionProvider {
 
     public void addToFavorite() {
 
-        DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
+        StoryEntry.editStories(new StoryEntry[]{mStory}, new StoryEditor() {
+            @Override
+            public void editStory(StoryEntry story) {
+                if(story.getIsFavourite() == 0) story.setIsFavourite(1);
+                else story.setIsFavourite(0);
+                story.save();
+            }
 
-        ProcessModelTransaction<StoryEntry> processModelTransaction =
-                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<StoryEntry>() {
-                    @Override
-                    public void processModel(StoryEntry story) {
-                        if(story.getIsFavourite() == 0) story.setIsFavourite(1);
-                        else story.setIsFavourite(0);
-                        story.save();
-                    }
-                }).processListener(new ProcessModelTransaction.OnModelProcessListener<StoryEntry>() {
-                    @Override
-                    public void onModelProcessed(long current, long total, StoryEntry story) {
+            @Override
+            public void onStoryEdited(long current, long total, StoryEntry story) {
 
-                    }
-                }).addAll(mStory).build();
+            }
 
-        Transaction transaction = database
-                .beginTransactionAsync(processModelTransaction)
-                .build();
+            @Override
+            public void onEditedSuccess() {
 
-        transaction.execute();
+            }
+
+            @Override
+            public void onEditedError() {
+
+            }
+        });
 
     }
 }

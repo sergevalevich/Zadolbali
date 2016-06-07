@@ -17,6 +17,7 @@ import com.valevich.zadolbali.R;
 import com.valevich.zadolbali.adapters.StorySlidePagerAdapter;
 import com.valevich.zadolbali.database.data.StoryEntry;
 import com.valevich.zadolbali.network.RestClient;
+import com.valevich.zadolbali.utils.Constants;
 import com.valevich.zadolbali.utils.StoryActionHandler;
 import com.valevich.zadolbali.utils.StarActionProvider;
 
@@ -46,10 +47,10 @@ public class DetailActivity extends AppCompatActivity {
 
     private PagerAdapter mPagerAdapter;
 
-    @Extra(value = "story_number")
+    @Extra(value = Constants.KEY_INTENT_STORY_NUMBER)
     int mStoryNumber;
 
-    @Extra(value = "stories_flag")
+    @Extra(value = Constants.KEY_INTENT_STORY_FLAG)
     int mFlag;
 
     private List<StoryEntry> mStories;

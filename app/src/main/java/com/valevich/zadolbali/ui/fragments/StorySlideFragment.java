@@ -22,7 +22,8 @@ import com.valevich.zadolbali.utils.StarActionProvider;
 
 import org.androidannotations.annotations.EFragment;
 
-import butterknife.Bind;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -31,7 +32,7 @@ import butterknife.ButterKnife;
 @EFragment(R.layout.fragment_story_slide)
 public class StorySlideFragment extends Fragment{
 
-    @Bind(R.id.story_content)
+    @BindView(R.id.story_content)
     TextView mStoryTextView;
 
     private static final String ARGUMENT_STORY = "STORY";

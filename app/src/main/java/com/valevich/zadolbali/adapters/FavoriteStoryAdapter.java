@@ -13,7 +13,7 @@ import com.valevich.zadolbali.utils.StoryActionHandler;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -51,13 +51,13 @@ public class FavoriteStoryAdapter extends
 
      class FavoriteStoryHolder extends RecyclerView.ViewHolder {
 
-         @Bind(R.id.fav_description)
+         @BindView(R.id.fav_description)
          TextView description;
 
-         @Bind(R.id.fav_share)
+         @BindView(R.id.fav_share)
          Button share;
 
-         @Bind(R.id.fav_more)
+         @BindView(R.id.fav_more)
          Button more;
 
          @OnClick(R.id.fav_share)

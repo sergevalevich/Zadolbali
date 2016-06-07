@@ -15,7 +15,8 @@ import com.valevich.zadolbali.utils.StoryActionHandler;
 
 import java.util.List;
 
-import butterknife.Bind;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -51,13 +52,13 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     }
     class StoryViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.description)
+        @BindView(R.id.description)
         TextView description;
-        @Bind(R.id.share)
+        @BindView(R.id.share)
         ImageView share;
-        @Bind(R.id.more)
+        @BindView(R.id.more)
         Button more;
-        @Bind(R.id.favorite)
+        @BindView(R.id.favorite)
         CheckBox favorite;
 
         @OnClick(R.id.share)

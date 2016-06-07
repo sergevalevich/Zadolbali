@@ -1,6 +1,7 @@
 package com.valevich.zadolbali.database.data;
 
 import android.support.annotation.NonNull;
+import android.text.Html;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -8,11 +9,17 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import com.valevich.zadolbali.database.ZadolbaliDatabase;
+import com.valevich.zadolbali.network.model.Story;
+import com.valevich.zadolbali.utils.StoryEditor;
 
 
 import java.io.Serializable;
@@ -119,6 +126,42 @@ public class StoryEntry extends BaseModel implements Serializable{
                 .and(StoryEntry_Table.description.like("%" + filter + "%"))
                 .orderBy(StoryEntry_Table.date,false)
                 .queryList();
+    }
+
+    public static void editStories(StoryEntry[] stories, final StoryEditor storyEditor) {
+
+        DatabaseDefinition database = FlowManager.getDatabase(ZadolbaliDatabase.class);
+
+        ProcessModelTransaction<StoryEntry> processModelTransaction =
+                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<StoryEntry>() {
+                    @Override
+                    public void processModel(StoryEntry story) {
+                        storyEditor.editStory(story);
+                    }
+                }).processListener(new ProcessModelTransaction.OnModelProcessListener<StoryEntry>() {
+                    @Override
+                    public void onModelProcessed(long current, long total, StoryEntry story) {
+                        storyEditor.onStoryEdited(current,total,story);
+                    }
+                }).addAll(stories).build();
+
+        Transaction transaction = database.beginTransactionAsync(processModelTransaction)
+                .success(new Transaction.Success() {
+                    @Override
+                    public void onSuccess(Transaction transaction) {
+                        storyEditor.onEditedSuccess();
+                    }
+                })
+                .error(new Transaction.Error() {
+                    @Override
+                    public void onError(Transaction transaction, Throwable error) {
+                        storyEditor.onEditedError();
+                    }
+                })
+                .build();
+
+        transaction.execute();
+
     }
 
 }
