@@ -2,15 +2,13 @@
 <RelativeLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".ui.activities.MainActivity"
-    android:background="@color/colorBackground"
-    tools:showIn="@layout/activity_main">
+    android:fitsSystemWindows="true"
+    android:background="@color/colorCards">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/main_appBar"
+        android:id="@+id/detail_appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -25,10 +23,17 @@
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout
-        android:id="@+id/main_container"
+        android:id="@+id/detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/main_appBar">
+        android:padding="@dimen/detail_root_padding"
+        android:layout_below="@+id/detail_appBar">
+
+        <android.support.v4.view.ViewPager
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 
